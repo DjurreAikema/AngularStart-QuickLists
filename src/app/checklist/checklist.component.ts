@@ -2,15 +2,18 @@ import {Component, computed, inject} from '@angular/core';
 import {ChecklistService} from "../shared/data-access/checklist.service";
 import {ActivatedRoute} from "@angular/router";
 import {toSignal} from "@angular/core/rxjs-interop";
+import {ChecklistHeaderComponent} from "./ui/checklist-header.component";
 
 @Component({
   selector: 'app-checklist',
   standalone: true,
-  imports: [],
+  imports: [
+    ChecklistHeaderComponent
+  ],
   template: `
-    <p>
-      Hi
-    </p>
+    @if (checklist(); as checklist) {
+      <app-checklist-header [checklist]="checklist"/>
+    }
   `,
   styles: ``
 })
