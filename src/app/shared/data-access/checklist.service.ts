@@ -1,11 +1,14 @@
 import {AddChecklist, Checklist} from "../interfaces/checklist";
-import {computed, Injectable, Signal, signal, WritableSignal} from "@angular/core";
-import {Subject} from "rxjs";
+import {computed, inject, Injectable, Signal, signal, WritableSignal} from "@angular/core";
+import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {StorageService} from "./storage.service";
 
 // State interface
 export interface ChecklistState {
   checklists: Checklist[];
+  loaded: boolean;
+  error: string | null;
 }
 
 @Injectable({
@@ -13,9 +16,13 @@ export interface ChecklistState {
 })
 // Responsibility: Handle the state for all checklists
 export class ChecklistService {
+  private storageService: StorageService = inject(StorageService);
+
   // State
   private state: WritableSignal<ChecklistState> = signal<ChecklistState>({
     checklists: [],
+    loaded: false,
+    error: null
   });
 
   // Selectors
@@ -24,15 +31,29 @@ export class ChecklistService {
   // Sources
   public add$: Subject<AddChecklist> = new Subject<AddChecklist>();
 
+  private checklistsLoaded$: Observable<Checklist[]> = this.storageService.loadChecklists();
+
+  // Reducers
   constructor() {
-    // Reducers
+    // checklistLoaded reducer
+    this.checklistsLoaded$.pipe(takeUntilDestroyed()).subscribe({
+      next: (checklists) =>
+        this.state.update((state) => ({
+          ...state,
+          checklists,
+          loaded: true
+        })),
+      error: (err) => this.state.update((state) => ({...state, error: err}))
+    });
+
+    // add reducer
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
       this.state.update((state) => ({
         ...state,
         checklists: [...state.checklists, this.addIdToChecklist(checklist)],
       }))
     );
-  };
+  }
 
   private addIdToChecklist(checklist: AddChecklist) {
     return {
