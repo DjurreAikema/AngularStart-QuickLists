@@ -36,7 +36,7 @@ export class ChecklistItemService {
   public toggle$ = new Subject<RemoveChecklistItem>();
   public reset$ = new Subject<RemoveChecklist>();
 
-  public checklistRemoved$ = new Subject<RemoveChecklist>();
+  public checklistRemoved$ = new Subject<RemoveChecklist>(); // TODO Q: Shouldn't the subject be in the checklist service?
 
   private checklistItemsLoaded$: Observable<ChecklistItem[]> = this.storageService.loadChecklistItems();
 
