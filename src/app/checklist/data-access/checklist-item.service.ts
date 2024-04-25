@@ -4,6 +4,7 @@ import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {RemoveChecklist} from "../../shared/interfaces/checklist";
 import {StorageService} from "../../shared/data-access/storage.service";
+import {ChecklistService} from "../../shared/data-access/checklist.service";
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
@@ -17,6 +18,7 @@ export interface ChecklistItemsState {
 // Responsibility: Handle the state for all checklist items
 export class ChecklistItemService {
   private storageService: StorageService = inject(StorageService);
+  private checklistService: ChecklistService = inject(ChecklistService);
 
   // --- State
   private state = signal<ChecklistItemsState>({
@@ -30,14 +32,13 @@ export class ChecklistItemService {
   public loaded: Signal<boolean> = computed(() => this.state().loaded);
 
   // --- Sources
-  public add$ = new Subject<AddChecklistItem>();
-  public edit$ = new Subject<EditChecklistItem>();
-  public remove$ = new Subject<RemoveChecklistItem>();
-  public toggle$ = new Subject<RemoveChecklistItem>();
-  public reset$ = new Subject<RemoveChecklist>();
+  public add$: Subject<AddChecklistItem> = new Subject<AddChecklistItem>();
+  public edit$: Subject<EditChecklistItem> = new Subject<EditChecklistItem>();
+  public remove$: Subject<RemoveChecklistItem> = new Subject<RemoveChecklistItem>();
+  public toggle$: Subject<RemoveChecklistItem> = new Subject<RemoveChecklistItem>();
+  public reset$: Subject<RemoveChecklist> = new Subject<RemoveChecklist>();
 
-  public checklistRemoved$ = new Subject<RemoveChecklist>(); // TODO Q: Shouldn't the subject be in the checklist service?
-
+  private checklistRemoved$ = this.checklistService.remove$;
   private checklistItemsLoaded$: Observable<ChecklistItem[]> = this.storageService.loadChecklistItems();
 
   // --- Reducers
