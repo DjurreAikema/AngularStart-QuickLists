@@ -20,7 +20,13 @@ import {Checklist, RemoveChecklist} from "../../shared/interfaces/checklist";
       </div>
     </header>
   `,
-  styles: ``
+  styles: [
+    `
+      button {
+        margin-left: 1rem;
+      }
+    `,
+  ]
 })
 // Responsibility: Dumb component that displays the header on the checklist detail page
 export class ChecklistHeaderComponent {
