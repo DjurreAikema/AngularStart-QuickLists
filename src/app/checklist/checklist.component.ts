@@ -52,7 +52,7 @@ import {ChecklistItemListComponent} from "./ui/checklist-item-list.component";
 // Responsibility: Smart component in charge of a checklist and its items
 // Get the checklist by its id, get this id from the url parameters
 // Get a list of this checklist's items
-// Handle the form logic required for creating/editing an item
+// Handle the form logic required for creating/editing/deleting an item
 export default class ChecklistComponent {
   // --- Dependencies
   public checklistService: ChecklistService = inject(ChecklistService);

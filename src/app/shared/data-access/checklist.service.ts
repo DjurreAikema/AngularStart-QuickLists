@@ -34,7 +34,7 @@ export class ChecklistService {
   // --- Sources
   public add$: Subject<AddChecklist> = new Subject<AddChecklist>();
   public edit$ = new Subject<EditChecklist>();
-  private remove$ = this.checklistItemService.checklistRemoved$;
+  public remove$ = this.checklistItemService.checklistRemoved$;
 
   private checklistsLoaded$: Observable<Checklist[]> = this.storageService.loadChecklists();
 
