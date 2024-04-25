@@ -4,7 +4,6 @@ import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {RemoveChecklist} from "../../shared/interfaces/checklist";
 import {StorageService} from "../../shared/data-access/storage.service";
-import {ChecklistService} from "../../shared/data-access/checklist.service";
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
@@ -18,7 +17,6 @@ export interface ChecklistItemsState {
 // Responsibility: Handle the state for all checklist items
 export class ChecklistItemService {
   private storageService: StorageService = inject(StorageService);
-  private checklistService: ChecklistService = inject(ChecklistService);
 
   // --- State
   private state = signal<ChecklistItemsState>({
@@ -38,7 +36,8 @@ export class ChecklistItemService {
   public toggle$: Subject<RemoveChecklistItem> = new Subject<RemoveChecklistItem>();
   public reset$: Subject<RemoveChecklist> = new Subject<RemoveChecklist>();
 
-  private checklistRemoved$ = this.checklistService.remove$;
+  public checklistRemoved$: Subject<RemoveChecklist> = new Subject<RemoveChecklist>();
+
   private checklistItemsLoaded$: Observable<ChecklistItem[]> = this.storageService.loadChecklistItems();
 
   // --- Reducers

@@ -11,9 +11,12 @@ import {Checklist, RemoveChecklist} from "../../shared/interfaces/checklist";
   template: `
     <header>
       <a routerLink="/home">Back</a>
-      <h1>
-        {{ checklist.title }}
-      </h1>
+
+      <div class="title">
+        <h1>{{ checklist.title }}</h1>
+        <h3>{{ completedItemsCount }}/{{ itemsCount }} items completed</h3>
+      </div>
+
       <div>
         <button (click)="resetChecklist.emit(checklist.id)">Reset</button>
         <button (click)="addItem.emit()">Add item</button>
@@ -22,6 +25,12 @@ import {Checklist, RemoveChecklist} from "../../shared/interfaces/checklist";
   `,
   styles: [
     `
+      .title {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+      }
+
       button {
         margin-left: 1rem;
       }
@@ -31,6 +40,8 @@ import {Checklist, RemoveChecklist} from "../../shared/interfaces/checklist";
 // Responsibility: Dumb component that displays the header on the checklist detail page
 export class ChecklistHeaderComponent {
   @Input({required: true}) checklist!: Checklist;
+  @Input({required: true}) itemsCount!: number;
+  @Input({required: true}) completedItemsCount!: number;
 
   @Output() addItem = new EventEmitter<void>();
   @Output() resetChecklist = new EventEmitter<RemoveChecklist>();

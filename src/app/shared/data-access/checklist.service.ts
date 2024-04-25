@@ -3,6 +3,7 @@ import {computed, effect, inject, Injectable, Signal, signal, WritableSignal} fr
 import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {StorageService} from "./storage.service";
+import {ChecklistItemService} from "../../checklist/data-access/checklist-item.service";
 
 // State interface
 export interface ChecklistState {
@@ -17,7 +18,7 @@ export interface ChecklistState {
 // Responsibility: Handle the state for all checklists
 export class ChecklistService {
   private storageService: StorageService = inject(StorageService);
-  // private checklistItemService: ChecklistItemService = inject(ChecklistItemService);
+  private checklistItemService: ChecklistItemService = inject(ChecklistItemService);
 
   // --- State
   private state: WritableSignal<ChecklistState> = signal<ChecklistState>({
@@ -33,7 +34,7 @@ export class ChecklistService {
   // --- Sources
   public add$: Subject<AddChecklist> = new Subject<AddChecklist>();
   public edit$: Subject<EditChecklist> = new Subject<EditChecklist>();
-  public remove$: Subject<RemoveChecklist> = new Subject<RemoveChecklist>();
+  public remove$: Subject<RemoveChecklist> = this.checklistItemService.checklistRemoved$;
 
   private checklistsLoaded$: Observable<Checklist[]> = this.storageService.loadChecklists();
 

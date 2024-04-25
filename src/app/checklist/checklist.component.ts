@@ -23,6 +23,8 @@ import {ChecklistItemListComponent} from "./ui/checklist-item-list.component";
     @if (checklist(); as checklist) {
       <app-checklist-header
         [checklist]="checklist"
+        [itemsCount]="itemsCount()"
+        [completedItemsCount]="completedItemsCount()"
         (addItem)="checklistItemBeingEdited.set({})"
         (resetChecklist)="checklistItemService.reset$.next($event)"
       />
@@ -85,6 +87,8 @@ export default class ChecklistComponent {
     .checklistItems()
     .filter((item) => item.checklistId == this.params()?.get('id'))
   );
+  public itemsCount = computed(() => this.items().length);
+  public completedItemsCount = computed(() => this.items().filter((item) => item.checked).length);
 
   // Track the checklist item that is currently being edited
   public checklistItemBeingEdited = signal<Partial<ChecklistItem> | null>(null);
