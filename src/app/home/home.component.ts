@@ -41,7 +41,7 @@ import {ChecklistListComponent} from "./ui/checklist-list.component";
     ChecklistListComponent
   ]
 })
-// Responsibility:
+// Responsibility: Smart component in charge of all checklists
 export default class HomeComponent {
   // --- Dependencies
   public formBuilder: FormBuilder = inject(FormBuilder);
