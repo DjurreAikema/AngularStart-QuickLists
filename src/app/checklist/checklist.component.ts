@@ -8,6 +8,7 @@ import {FormBuilder} from "@angular/forms";
 import {ChecklistItem} from "../shared/interfaces/checklist-item";
 import {ModalComponent} from "../shared/ui/modal.component";
 import {FormModalComponent} from "../shared/ui/form-modal.component";
+import {ChecklistItemListComponent} from "./ui/checklist-item-list.component";
 
 @Component({
   selector: 'app-checklist',
@@ -15,7 +16,8 @@ import {FormModalComponent} from "../shared/ui/form-modal.component";
   imports: [
     ChecklistHeaderComponent,
     ModalComponent,
-    FormModalComponent
+    FormModalComponent,
+    ChecklistItemListComponent
   ],
   template: `
     @if (checklist(); as checklist) {
@@ -24,6 +26,8 @@ import {FormModalComponent} from "../shared/ui/form-modal.component";
         (addItem)="checklistItemBeingEdited.set({})"
       />
     }
+
+    <app-checklist-item-list [checklistItems]="items()"/>
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
       <ng-template>
@@ -42,6 +46,9 @@ import {FormModalComponent} from "../shared/ui/form-modal.component";
   styles: ``
 })
 // Responsibility: Smart component in charge of a checklist and its items
+// Get the checklist by its id, get this id from the url parameters
+// Get a list of this checklist's items
+// Handle the form logic required for creating/editing an item
 export default class ChecklistComponent {
   // --- Dependencies
   public checklistService: ChecklistService = inject(ChecklistService);
@@ -60,6 +67,12 @@ export default class ChecklistComponent {
   );
 
   // --- Checklist items
+  // Array of checklist items of the selected checklist
+  public items = computed(() => this.checklistItemService
+    .checklistItems()
+    .filter((item) => item.checklistId == this.params()?.get('id'))
+  );
+
   // Track the checklist item that is currently being edited
   public checklistItemBeingEdited = signal<Partial<ChecklistItem> | null>(null);
 

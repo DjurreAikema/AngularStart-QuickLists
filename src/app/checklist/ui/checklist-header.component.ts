@@ -21,7 +21,7 @@ import {Checklist} from "../../shared/interfaces/checklist";
   `,
   styles: ``
 })
-// Responsibility: Dumb component that displays the header for a checklist
+// Responsibility: Dumb component that displays the header on the checklist detail page
 export class ChecklistHeaderComponent {
   @Input({required: true}) checklist!: Checklist;
 
