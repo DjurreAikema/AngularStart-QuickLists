@@ -1,5 +1,5 @@
 import {AddChecklistItem, ChecklistItem, RemoveChecklistItem} from "../../shared/interfaces/checklist-item";
-import {computed, inject, Injectable, signal} from "@angular/core";
+import {computed, effect, inject, Injectable, Signal, signal} from "@angular/core";
 import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {RemoveChecklist} from "../../shared/interfaces/checklist";
@@ -18,24 +18,25 @@ export interface ChecklistItemsState {
 export class ChecklistItemService {
   private storageService: StorageService = inject(StorageService);
 
-  // State
+  // --- State
   private state = signal<ChecklistItemsState>({
     checklistItems: [],
     loaded: false,
     error: null
   });
 
-  // Selectors
-  public checklistItems = computed(() => this.state().checklistItems);
+  // --- Selectors
+  public checklistItems: Signal<ChecklistItem[]> = computed(() => this.state().checklistItems);
+  public loaded: Signal<boolean> = computed(() => this.state().loaded);
 
-  // Sources
+  // --- Sources
   public add$ = new Subject<AddChecklistItem>();
   public toggle$ = new Subject<RemoveChecklistItem>();
   public reset$ = new Subject<RemoveChecklist>();
 
   private checklistItemsLoaded$: Observable<ChecklistItem[]> = this.storageService.loadChecklistItems();
 
-  // Reducers
+  // --- Reducers
   constructor() {
     // checklistItemsLoaded reducer
     this.checklistItemsLoaded$.pipe(takeUntilDestroyed()).subscribe({
@@ -87,5 +88,11 @@ export class ChecklistItemService {
         )
       }))
     );
+
+    // --- Effects
+    // This effect will save the checklist items to local storage every time the state changes
+    effect(() => {
+      if (this.loaded()) this.storageService.saveChecklistItems(this.checklistItems());
+    });
   }
 }

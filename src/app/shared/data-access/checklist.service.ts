@@ -1,5 +1,5 @@
 import {AddChecklist, Checklist} from "../interfaces/checklist";
-import {computed, inject, Injectable, Signal, signal, WritableSignal} from "@angular/core";
+import {computed, effect, inject, Injectable, Signal, signal, WritableSignal} from "@angular/core";
 import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {StorageService} from "./storage.service";
@@ -18,22 +18,23 @@ export interface ChecklistState {
 export class ChecklistService {
   private storageService: StorageService = inject(StorageService);
 
-  // State
+  // --- State
   private state: WritableSignal<ChecklistState> = signal<ChecklistState>({
     checklists: [],
     loaded: false,
     error: null
   });
 
-  // Selectors
+  // --- Selectors
   public checklists: Signal<Checklist[]> = computed(() => this.state().checklists);
+  public loaded: Signal<boolean> = computed(() => this.state().loaded)
 
-  // Sources
+  // --- Sources
   public add$: Subject<AddChecklist> = new Subject<AddChecklist>();
 
   private checklistsLoaded$: Observable<Checklist[]> = this.storageService.loadChecklists();
 
-  // Reducers
+  // --- Reducers
   constructor() {
     // checklistLoaded reducer
     this.checklistsLoaded$.pipe(takeUntilDestroyed()).subscribe({
@@ -53,6 +54,12 @@ export class ChecklistService {
         checklists: [...state.checklists, this.addIdToChecklist(checklist)],
       }))
     );
+
+    // --- Effects
+    // This effect will save the checklists to local storage every time the state changes
+    effect(() => {
+      if (this.loaded()) this.storageService.saveChecklists(this.checklists());
+    });
   }
 
   private addIdToChecklist(checklist: AddChecklist) {
