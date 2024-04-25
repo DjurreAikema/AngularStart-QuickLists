@@ -25,7 +25,27 @@ import {RouterLink} from "@angular/router";
       }
     </ul>
   `,
-  styles: ``
+  styles: [
+    `
+      ul {
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        font-size: 1.5em;
+        display: flex;
+        justify-content: space-between;
+        background: var(--color-light);
+        list-style-type: none;
+        margin-bottom: 1rem;
+        padding: 1rem;
+
+        button {
+          margin-left: 1rem;
+        }
+      }
+    `,
+  ]
 })
 // Responsibility: Dumb component that will display a list of checklists
 export class ChecklistListComponent {

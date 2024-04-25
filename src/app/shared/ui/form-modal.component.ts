@@ -27,7 +27,34 @@ import {KeyValuePipe} from "@angular/common";
       </form>
     </section>
   `,
-  imports: [ReactiveFormsModule, KeyValuePipe]
+  imports: [ReactiveFormsModule, KeyValuePipe],
+  styles: [
+    `
+      form {
+        padding: 1rem;
+      }
+
+      div {
+        display: flex;
+        flex-direction: column;
+
+        label {
+          margin-bottom: 1rem;
+          font-weight: bold;
+        }
+
+        input {
+          font-size: 1.5rem;
+          padding: 10px;
+        }
+      }
+
+      section button {
+        margin-top: 1rem;
+        width: 100%;
+      }
+    `,
+  ]
 })
 // Responsibility: Dumb component that TODO
 export class FormModalComponent {
