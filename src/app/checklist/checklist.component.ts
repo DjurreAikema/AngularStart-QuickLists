@@ -24,6 +24,7 @@ import {ChecklistItemListComponent} from "./ui/checklist-item-list.component";
       <app-checklist-header
         [checklist]="checklist"
         (addItem)="checklistItemBeingEdited.set({})"
+        (resetChecklist)="checklistItemService.reset$.next($event)"
       />
     }
 
