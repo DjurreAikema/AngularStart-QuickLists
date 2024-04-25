@@ -29,7 +29,7 @@ export class ChecklistService {
 
   // --- Selectors
   public checklists: Signal<Checklist[]> = computed(() => this.state().checklists);
-  public loaded: Signal<boolean> = computed(() => this.state().loaded)
+  public loaded: Signal<boolean> = computed(() => this.state().loaded);
 
   // --- Sources
   public add$: Subject<AddChecklist> = new Subject<AddChecklist>();
