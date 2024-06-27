@@ -1,10 +1,11 @@
 import {AddChecklist, Checklist, EditChecklist, RemoveChecklist} from "../interfaces/checklist";
 import {computed, effect, inject, Injectable, Signal, signal, WritableSignal} from "@angular/core";
-import {Observable, Subject} from "rxjs";
+import {catchError, EMPTY, map, merge, Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {StorageService} from "./storage.service";
 import {ChecklistItemService} from "../../checklist/data-access/checklist-item.service";
 import {reducer} from "../utils/reducer";
+import {connect} from "ngxtension/connect";
 
 // State interface
 export interface ChecklistState {
@@ -37,52 +38,50 @@ export class ChecklistService {
   public edit$: Subject<EditChecklist> = new Subject<EditChecklist>();
   public remove$: Subject<RemoveChecklist> = this.checklistItemService.checklistRemoved$;
 
-  private checklistsLoaded$: Observable<Checklist[]> = this.storageService.loadChecklists();
+  private checklistsLoaded$: Observable<Checklist[]> = this.storageService.loadChecklists().pipe(
+    catchError((err) => {
+      this.error$.next(err);
+      return EMPTY;
+    })
+  );
+  private error$: Subject<string> = new Subject<string>();
 
   // --- Reducers
   constructor() {
     // checklistLoaded$ reducer
-    reducer(this.checklistsLoaded$, (checklists) =>
-        this.state.update((state) => ({
-          ...state,
-          checklists,
-          loaded: true
-        })),
-      (error) => this.state.update((state) => ({...state, error}))
+    const nextState$ = merge(
+      this.checklistsLoaded$.pipe(
+        map((checklists) => ({checklists, loaded: true}))
+      ),
+      this.error$.pipe(map((error) => ({error})))
     );
 
-    // add reducer$
-    this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
-      this.state.update((state) => ({
-        ...state,
+    connect(this.state)
+      // checklistLoaded$ reducer
+      .with(nextState$)
+      // add reducer$
+      .with(this.add$, (state, checklist) => ({
         checklists: [...state.checklists, this.addIdToChecklist(checklist)],
       }))
-    );
-
-    // edit$ reducer
-    this.edit$.pipe(takeUntilDestroyed()).subscribe((update) =>
-      this.state.update((state) => ({
-        ...state,
+      // remove$ reducer
+      .with(this.remove$, (state, id) => ({
+        checklists: state.checklists.filter((checklist) => checklist.id !== id),
+      }))
+      // edit$ reducer
+      .with(this.edit$, (state, update) => ({
         checklists: state.checklists.map((checklist) =>
           checklist.id === update.id
             ? {...checklist, title: update.data.title}
             : checklist
-        )
-      }))
-    );
-
-    // remove$ reducer
-    this.remove$.pipe(takeUntilDestroyed()).subscribe((id) =>
-      this.state.update((state) => ({
-        ...state,
-        checklists: state.checklists.filter((checklist) => checklist.id !== id)
-      }))
-    );
+        ),
+      }));
 
     // --- Effects
     // This effect will save the checklists to local storage every time the state changes
-    effect(() => {
-      if (this.loaded()) this.storageService.saveChecklists(this.checklists());
+    effect((): void => {
+      if (this.loaded()) {
+        this.storageService.saveChecklists(this.checklists());
+      }
     });
   }
 
