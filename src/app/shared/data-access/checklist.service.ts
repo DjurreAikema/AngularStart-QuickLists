@@ -4,6 +4,7 @@ import {Observable, Subject} from "rxjs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {StorageService} from "./storage.service";
 import {ChecklistItemService} from "../../checklist/data-access/checklist-item.service";
+import {reducer} from "../utils/reducer";
 
 // State interface
 export interface ChecklistState {
@@ -41,15 +42,14 @@ export class ChecklistService {
   // --- Reducers
   constructor() {
     // checklistLoaded$ reducer
-    this.checklistsLoaded$.pipe(takeUntilDestroyed()).subscribe({
-      next: (checklists) =>
+    reducer(this.checklistsLoaded$, (checklists) =>
         this.state.update((state) => ({
           ...state,
           checklists,
           loaded: true
         })),
-      error: (err) => this.state.update((state) => ({...state, error: err}))
-    });
+      (error) => this.state.update((state) => ({...state, error}))
+    );
 
     // add reducer$
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
