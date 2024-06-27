@@ -1,10 +1,8 @@
 import {AddChecklist, Checklist, EditChecklist, RemoveChecklist} from "../interfaces/checklist";
 import {computed, effect, inject, Injectable, Signal, signal, WritableSignal} from "@angular/core";
 import {catchError, EMPTY, map, merge, Observable, Subject} from "rxjs";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {StorageService} from "./storage.service";
 import {ChecklistItemService} from "../../checklist/data-access/checklist-item.service";
-import {reducer} from "../utils/reducer";
 import {connect} from "ngxtension/connect";
 
 // State interface
@@ -48,16 +46,16 @@ export class ChecklistService {
 
   // --- Reducers
   constructor() {
-    // checklistLoaded$ reducer
     const nextState$ = merge(
+      // checklistLoaded$ reducer
       this.checklistsLoaded$.pipe(
         map((checklists) => ({checklists, loaded: true}))
       ),
+      // error$ reducer
       this.error$.pipe(map((error) => ({error})))
     );
 
     connect(this.state)
-      // checklistLoaded$ reducer
       .with(nextState$)
       // add reducer$
       .with(this.add$, (state, checklist) => ({
