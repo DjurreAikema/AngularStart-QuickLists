@@ -52,7 +52,7 @@ export class ChecklistService {
         map((checklists) => ({checklists, loaded: true}))
       ),
       // error$ reducer
-      this.error$.pipe(map((error) => ({error})))
+      this.error$.pipe(map((error) => ({error}))),
     );
 
     connect(this.state)
