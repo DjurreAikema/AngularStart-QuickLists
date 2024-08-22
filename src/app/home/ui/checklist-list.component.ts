@@ -31,6 +31,7 @@ import {RouterLink} from "@angular/router";
         padding: 0;
         margin: 0;
       }
+
       li {
         font-size: 1.5em;
         display: flex;
